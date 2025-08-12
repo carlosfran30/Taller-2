@@ -1,12 +1,15 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
+import { Pantalla1 } from './Screens/Pantalla1';
+import { Pantalla2 } from './Screens/Pantalla2';
+import { Nativestack } from './Navigator/Native Stack';
+import { NavigationContainer } from '@react-navigation/native';
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <Nativestack/>
+    </NavigationContainer>
   );
 }
 
