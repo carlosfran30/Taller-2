@@ -1,8 +1,18 @@
 import React, { useState } from 'react';
-import { TextInput, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { TextInput, View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { User } from '../Navigator/Native Stack';
+
+interface Props {
+  users: User[]
+}
+
+interface FormLogin {
+  email: string;
+  password: string;
+}
 
 type RootStackParamList = {
   Ingreso: undefined;
@@ -22,16 +32,15 @@ const MyButton = ({ onPress, title }: { onPress: () => void; title: string }) =>
   );
 };
 
-export const Pantalla1 = () => {
+export const Pantalla1 = ({ users }: Props) => {
+  const [formLogin, setFormLogin] = useState<FormLogin>({
+    email: '',
+    password: ''
+  });
   const navigation = useNavigation<Pantalla1NavigationProp>();
-  const [usuario, setUsuario] = useState<string>('');
-  const [contrasena, setContrasena] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const handleIngreso = () => {
-    console.log('=== DATOS DE LOGIN ===');
-    console.log('Usuario:', usuario);
-    console.log('Contraseña:', contrasena);
     navigation.navigate('Productos');
   };
 
@@ -43,29 +52,56 @@ export const Pantalla1 = () => {
     setShowPassword(!showPassword);
   };
 
+  const handleSetValues = (name: string, value: string) => {
+    setFormLogin({...formLogin, [name]: value});
+  };
+
+  const handleSingIn = () => {
+    if (!formLogin.email || !formLogin.password) {
+      Alert.alert('Error', 'Por favor ingrese valores en todos los campos');
+      return;
+    }
+
+    const userExists = users.some(user => 
+      user.email === formLogin.email && 
+      user.password === formLogin.password
+    );
+
+    if (!userExists) {
+      Alert.alert('Error', 'Credenciales incorrectas');
+      return;
+    }
+
+    navigation.navigate('Productos');
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Ingresar</Text>
-      <Text style={styles.label}>Nombre de usuario:</Text>
+      <Text style={styles.label}>Correo electrónico:</Text>
       <TextInput
         style={styles.input}
-        value={usuario}
-        onChangeText={setUsuario}
-        placeholder="Ingrese su usuario"
+        value={formLogin.email}
+        onChangeText={(value) => handleSetValues('email', value)}
+        placeholder="Ingrese su correo"
+        keyboardType='email-address'
+        autoCapitalize='none'
       />
       <View style={styles.passwordContainer}>
         <TextInput
           style={[styles.input, styles.passwordInput]}
           secureTextEntry={!showPassword}
-          value={contrasena}
-          onChangeText={setContrasena}
+          value={formLogin.password}
+          onChangeText={(value) => handleSetValues('password', value)}
           placeholder="Ingrese su contraseña"
+          keyboardType='default'
+          autoCapitalize='none'
         />
         <TouchableOpacity onPress={toggleShowPassword} style={styles.eyeIcon}>
           <Icon name={showPassword ? 'visibility-off' : 'visibility'} size={20} color="#5D4037" />
         </TouchableOpacity>
       </View>
-      <MyButton onPress={handleIngreso} title="Ingresar" />
+      <MyButton onPress={handleSingIn} title="Ingresar" />
       <MyButton onPress={handleRegistro} title="Registrarse" />
     </View>
   );
